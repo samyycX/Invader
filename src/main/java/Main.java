@@ -1,4 +1,5 @@
 import Gun.Gun;
+import Gun.GunsManager;
 import Gun.GunImpl.AssaultRifle;
 import Gun.data.BlockBreakStage;
 import command.vanilla.CGamemode;
@@ -6,6 +7,7 @@ import command.vanilla.CTeleport;
 import command.vanilla.CTest;
 import command.vanilla.CTest2;
 import feature.Features;
+import name.T;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
@@ -43,7 +45,9 @@ import net.minestom.server.utils.entity.EntityFinder;
 import net.minestom.server.utils.identity.NamedAndIdentified;
 import net.minestom.server.world.DimensionType;
 import net.minestom.server.world.DimensionTypeManager;
+import org.slf4j.LoggerFactory;
 import util.ChunkHandler;
+import util.logger.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -83,12 +87,16 @@ public class Main {
             // 设置玩家的出生地点
             player.setRespawnPoint(new Pos(0, 42, 0));
 
-
         });
 
+        globalEventHandler.addListener(PlayerChatEvent.class, e -> {
+            System.out.println(1);
+        });
+
+
         // 注册枪械
-        Gun gun = new AssaultRifle();
-        gun.register(instance);
+        GunsManager gunsManager = new GunsManager();
+        gunsManager.hookEvent(EventNode.class.cast(instance.eventNode()));
 
         ChunkHandler.init(globalEventHandler, instance);
 
@@ -105,17 +113,10 @@ public class Main {
             data.addEntry(NamedAndIdentified.named("Minestom Server"));
         });
 
-        globalEventHandler.addListener(PlayerMoveEvent.class, e -> {
-            for (Chunk chunk : instance.getChunks()) {
-                if (chunk.getViewers().isEmpty()) {
-                    instance.unloadChunk(chunk);
-                }
-            }
-        });
-
-
         Features.combat().hook(EventNode.class.cast(instance.eventNode()));
 
         server.start("127.0.0.1", 25565);
+
+        Logger.log(T.COMMAND_GAMEMODE_HINT);
     }
 }
