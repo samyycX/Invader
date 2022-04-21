@@ -19,8 +19,6 @@ public interface Gun {
     public static double VECTOR_TWO_POINT_INTERVAL = 0.6;
     public static double HIT_RANGE_CHECK = 2;
 
-    void register(Instance instance);
-
     void fire(@NotNull Player player);
 
     int getAmmo();
@@ -69,5 +67,7 @@ public interface Gun {
         );
         return particlePacket;
     }
+
+    String getTag();
 
 }

@@ -25,6 +25,7 @@ import net.minestom.server.network.packet.server.play.BlockBreakAnimationPacket;
 import net.minestom.server.network.packet.server.play.ParticlePacket;
 import net.minestom.server.particle.Particle;
 import net.minestom.server.particle.ParticleCreator;
+import net.minestom.server.tag.Tag;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,22 +38,13 @@ public class AssaultRifle implements Gun {
     private final int DAMAGE = 2;
     private final double COOLDOWN = 0.5;
 
-
-    @Override
-    public void register(Instance instance) {
-        instance.eventNode().addListener(PlayerUseItemEvent.class, e -> {
-            if (e.getPlayer().getItemInMainHand().isSimilar(getItemStack())) {
-                fire(e.getPlayer());
-            }
-        });
-    }
-
     @Override
     public void fire(Player player) {
         // 获取玩家当前朝向的向量
         Vec vec = player.getPosition().direction();
 
         // 射程
+        player.playSound(getFiringSound());
         for (int i = 1; i <= getMaxFlyingDistance(); i++) {
             // 向量增加
             Vec vec1 = vec.normalize().mul(Gun.VECTOR_TWO_POINT_INTERVAL*i);
@@ -110,7 +102,6 @@ public class AssaultRifle implements Gun {
             }
 
 
-            player.playSound(getFiringSound());
             player.sendPacket(getFiringParticle(pos));
         }
     }
@@ -122,7 +113,7 @@ public class AssaultRifle implements Gun {
 
     @Override
     public ItemStack getItemStack() {
-        return GameData.ASSAULT_RIFLE_ITEMSTACK;
+        return GameData.ASSAULT_RIFLE_ITEMSTACK.withTag(Tag.String("gun"), getTag());
     }
 
     @Override
@@ -138,5 +129,10 @@ public class AssaultRifle implements Gun {
     @Override
     public int getMaxFlyingDistance() {
         return GameData.ASSAULT_RIFLE_MAX_DISTANCE;
+    }
+
+    @Override
+    public String getTag() {
+        return "assault_rifle";
     }
 }
