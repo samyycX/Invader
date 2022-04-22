@@ -1,6 +1,6 @@
 package com.samyyc.invader.command.vanilla;
 
-import mob.TestMob;
+import com.samyyc.invader.mob.TestMob;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.coordinate.Pos;
