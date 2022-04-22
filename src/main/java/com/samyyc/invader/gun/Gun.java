@@ -1,5 +1,6 @@
 package com.samyyc.invader.gun;
 
+import com.samyyc.invader.game.PlayerKillPlayerEvent;
 import com.samyyc.invader.gun.data.GameData;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
@@ -7,6 +8,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
+import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.Player;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.item.ItemStack;
@@ -137,6 +139,14 @@ public interface Gun {
                         (int) Math.floor(getCoolDown() / 2)
                 )
         );
+    }
+
+    default void callKillingEvent(Player killer, Entity dead, double damage) {
+        if (dead instanceof Player) {
+            if (((Player) dead).getHealth() - damage <= 0) {
+                killer.getInstance().eventNode().call(new PlayerKillPlayerEvent(killer, (Player) dead, killer.getInstance()));
+            }
+        }
     }
 
 }

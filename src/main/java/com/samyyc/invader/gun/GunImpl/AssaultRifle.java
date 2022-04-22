@@ -26,6 +26,7 @@ import net.minestom.server.network.packet.server.play.ParticlePacket;
 import net.minestom.server.particle.Particle;
 import net.minestom.server.particle.ParticleCreator;
 import net.minestom.server.tag.Tag;
+import net.minestom.server.timer.TaskSchedule;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,6 +38,9 @@ public class AssaultRifle implements Gun {
     public void fire(Player player) {
         // 获取玩家当前朝向的向量
         Vec vec = player.getPosition().direction();
+        Pos originPos = player.getPosition();
+
+        sendCooldownPacket(player);
 
         // 射程
         player.playSound(getFiringSound());
@@ -44,9 +48,7 @@ public class AssaultRifle implements Gun {
             // 向量增加
             Vec vec1 = vec.normalize().mul(Gun.VECTOR_TWO_POINT_INTERVAL*i);
             // 转换成坐标
-            Pos pos = player.getPosition().add(vec1.x(), vec1.y()+player.getEyeHeight()-0.4, vec1.z());
-
-            sendCooldownPacket(player);
+            Pos pos = originPos.add(vec1.x(), vec1.y()+player.getEyeHeight()-0.4, vec1.z());
 
             Instance instance = player.getInstance();
             // 判断是否击中实体
@@ -57,9 +59,10 @@ public class AssaultRifle implements Gun {
                 instance.getNearbyEntities(pos, Gun.HIT_RANGE_CHECK).forEach(entity -> {
                     if (entity.getPosition() != player.getPosition() && entity instanceof LivingEntity livingEntity) {
                         targetIsPlayer.set(false);
-                        livingEntity.damage(DamageType.fromPlayer(player), 1);
+                        livingEntity.damage(DamageType.fromPlayer(player), getDamage());
 
                         player.playSound(GameSound.HIT_SOUND);
+                        callKillingEvent(player, livingEntity, getDamage());
                     }
                 });
                 // 如果击中了发射者以外的实体，则阻止子弹继续飞行
@@ -77,6 +80,7 @@ public class AssaultRifle implements Gun {
                 // 把方块坐标取整，方便获取Main方法中的方块破坏程度表
                 Pos pos1 = new Pos(pos.blockX(), pos.blockY(), pos.blockZ());
 
+                /*
                 // 获取方块损坏程度表
                 Map<Pos, Integer> blockBreakStage = BlockBreakStage.blockBreakStage.get(player.getInstance());
                 int breakStage = 1;
@@ -94,6 +98,8 @@ public class AssaultRifle implements Gun {
                 // 发方块损坏特效，和方块损坏粒子
                 GamePacket.sendBlockBreakAnimationPacket(player, pos1, breakStage);
                 GameParticle.sendBlockParticle(player, block, pos1);
+
+                 */
 
                 break;
             }

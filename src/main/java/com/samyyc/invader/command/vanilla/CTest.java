@@ -1,6 +1,7 @@
 package com.samyyc.invader.command.vanilla;
 
-import com.samyyc.invader.gun.GunImpl.RPG;
+import com.samyyc.invader.Main;
+import com.samyyc.invader.game.singlemode.SingleGameManager;
 import com.samyyc.invader.gun.GunsManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -37,8 +38,13 @@ public class CTest extends Command {
             player.sendPackets(directFramebuffer.preparePacket(10));
             player.getInventory().addItemStack(map);
 
+            player.getInventory().addItemStack(GunsManager.getGunsItemstack("rpg"));
             player.getInventory().addItemStack(GunsManager.getGunsItemstack("assaultrifle"));
+            player.getInventory().addItemStack(GunsManager.getGunsItemstack("awp"));
+            player.getInventory().addItemStack(GunsManager.getGunsItemstack("testrpg"));
 
+
+            Main.gameManager.join(player);
 
         });
     }}

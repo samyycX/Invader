@@ -1,15 +1,25 @@
 package com.samyyc.invader.gun;
 
 import com.samyyc.invader.Main;
+import com.samyyc.invader.gun.GunImpl.AWP;
 import com.samyyc.invader.gun.GunImpl.AssaultRifle;
 import com.samyyc.invader.gun.GunImpl.RPG;
+import com.samyyc.invader.gun.GunImpl.TestRPG;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.Event;
 import net.minestom.server.event.EventNode;
+import net.minestom.server.event.player.PlayerHandAnimationEvent;
+import net.minestom.server.event.player.PlayerPacketEvent;
 import net.minestom.server.event.player.PlayerSwapItemEvent;
 import net.minestom.server.event.player.PlayerUseItemEvent;
+import net.minestom.server.event.trait.InstanceEvent;
 import net.minestom.server.item.ItemStack;
+import net.minestom.server.item.Material;
+import net.minestom.server.network.packet.client.ClientPacket;
+import net.minestom.server.network.packet.server.play.EffectPacket;
+import net.minestom.server.potion.Potion;
+import net.minestom.server.potion.PotionEffect;
 import net.minestom.server.tag.Tag;
 import net.minestom.server.timer.TaskSchedule;
 import org.jetbrains.annotations.NotNull;
@@ -17,9 +27,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class GunsManager {
@@ -27,27 +39,17 @@ public class GunsManager {
     private static final Map<String, Gun> guns = new HashMap<>();
 
     public static void init() {
-        try {
-            Enumeration<URL> gunClasses = GunsManager.class.getClassLoader().getResources("com/samyyc/invader/gun/GunImpl");
-            System.out.println(gunClasses);
-            while (gunClasses.hasMoreElements()) {
-                URL url = gunClasses.nextElement();
-                String[] file = new File(url.getFile()).list();
-                Class[] classList = new Class[file.length];
-                for (int i = 0; i < classList.length; i++) {
-                    Class<?> gunClass = Class.forName("com.samyyc.invader.gun.GunImpl."+file[i].replaceAll("\\.class",""));
-                    if (Gun.class.isAssignableFrom(gunClass)) {
-                        Constructor<?> constructor = gunClass.getConstructor();
-                        guns.put(file[i].toLowerCase().replace(".class",""), (Gun) constructor.newInstance());
-                    }
-                }
-            }
-        } catch (IOException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
+        Gun rifle = new AssaultRifle();
+        Gun rpg = new RPG();
+        Gun awp = new AWP();
+        Gun testrpg = new TestRPG();
+        guns.put(rifle.getTag(), rifle);
+        guns.put(rpg.getTag(), rpg);
+        guns.put(awp.getTag(), awp);
+        guns.put(testrpg.getTag(), testrpg);
     }
 
-    public static void hookEvent(EventNode<Event> node) {
+    public static void hookEvent(EventNode<InstanceEvent> node) {
         node.addListener(PlayerUseItemEvent.class, e -> {
 
             String gunName = e.getItemStack().getTag(Tag.String("gun"));
@@ -89,6 +91,40 @@ public class GunsManager {
             }
             if (!reload) e.setCancelled(false);
         });
+
+        node.addListener(PlayerHandAnimationEvent.class, e -> {
+            e.getPlayer().addEffect(
+                    new Potion(
+                            PotionEffect.SLOWNESS,
+                            (byte) 100,
+                            99999
+                    )
+            );
+            if (e.getPlayer().getItemInMainHand().material() != Material.AIR
+            &&
+                e.getPlayer().getItemInMainHand().hasTag(Tag.Integer("scoped"))) {
+
+                int zoomLevel = e.getPlayer().getItemInMainHand().getTag(Tag.Integer("scoped"));
+                if (zoomLevel == 0) {
+                    zoomLevel = 2;
+                } else if (zoomLevel == 2) {
+                    zoomLevel = 4;
+                } else if (zoomLevel == 4) {
+                    zoomLevel = 0;
+                }
+                e.getPlayer().addEffect(
+                        new Potion(PotionEffect.SLOWNESS,
+                                (byte) zoomLevel,
+                                9999
+                        )
+                );
+                e.getPlayer().setItemInMainHand(
+                        e.getPlayer().getItemInMainHand()
+                                .withTag(Tag.Integer("scoped"), zoomLevel)
+                );
+
+            }
+        });
     }
 
     private static Gun findGun(String gunName) {
@@ -99,5 +135,6 @@ public class GunsManager {
     public static ItemStack getGunsItemstack(String tag) {
         return findGun(tag).getItemStack();
     }
+
 
 }

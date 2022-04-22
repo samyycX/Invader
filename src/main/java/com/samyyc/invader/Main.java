@@ -1,10 +1,9 @@
 package com.samyyc.invader;
 
-import com.samyyc.invader.command.vanilla.CGamemode;
-import com.samyyc.invader.command.vanilla.CTeleport;
-import com.samyyc.invader.command.vanilla.CTest;
-import com.samyyc.invader.command.vanilla.CTest2;
+import com.samyyc.invader.command.vanilla.*;
 import com.samyyc.invader.feature.Features;
+import com.samyyc.invader.game.IGameManager;
+import com.samyyc.invader.game.singlemode.SingleGameManager;
 import com.samyyc.invader.gun.GunsManager;
 import com.samyyc.invader.gun.data.BlockBreakStage;
 import com.samyyc.invader.name.T;
@@ -30,6 +29,8 @@ import java.util.HashMap;
 public class Main {
 
     public static InstanceContainer instance;
+
+    public static IGameManager gameManager;
 
     public static void main(String[] args) {
         // 初始化服务器
@@ -66,11 +67,13 @@ public class Main {
         GunsManager.init();
         GunsManager.hookEvent(EventNode.class.cast(instance.eventNode()));
 
+
         // 注册命令
         MinecraftServer.getCommandManager().register(new CGamemode());
         MinecraftServer.getCommandManager().register(new CTest(instance));
         MinecraftServer.getCommandManager().register(new CTeleport());
         MinecraftServer.getCommandManager().register(new CTest2(instance));
+        MinecraftServer.getCommandManager().register(new CTime());
 
         // 用户获取服务器列表时返回内容监听器
         globalEventHandler.addListener(ServerListPingEvent.class, event -> {
@@ -78,8 +81,12 @@ public class Main {
             data.addEntry(NamedAndIdentified.named("Minestom Server"));
         });
 
+        gameManager = new SingleGameManager();
+        gameManager.newGame();
+
+
         Features.combat().hook(EventNode.class.cast(instance.eventNode()));
 
-        server.start("127.0.0.1", 25565);
+        server.start("0.0.0.0", 25565);
     }
 }

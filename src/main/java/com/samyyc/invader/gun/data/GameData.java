@@ -18,7 +18,7 @@ public class GameData {
 
     public static final int RPG_AMMO = 5;
     public static final double RPG_COOLDOWN = 60;
-    public static final int RPG_MAX_EXIST = 30;
+    public static final int RPG_MAX_EXIST = 300;
     public static final int RPG_DAMAGE = 100;
     public static final ItemStack RPG_ITEMSTACK = ItemStack
             .builder(Material.DIAMOND_SHOVEL)
