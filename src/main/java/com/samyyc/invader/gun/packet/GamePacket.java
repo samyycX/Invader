@@ -2,6 +2,7 @@ package com.samyyc.invader.gun.packet;
 
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
+import net.minestom.server.network.packet.server.SendablePacket;
 import net.minestom.server.network.packet.server.play.BlockBreakAnimationPacket;
 
 public class GamePacket {
@@ -12,7 +13,13 @@ public class GamePacket {
                 blockPos,
                 (byte) breakStage
         );
-        player.sendPacket(blockBreakAnimationPacket);
+        sendPacket(player, blockBreakAnimationPacket);
+    }
+
+    public static void sendPacket(Player player, SendablePacket packet) {
+        player.getInstance().getPlayers().forEach(everyPlayer -> {
+            everyPlayer.sendPacket(packet);
+        });
     }
 
 

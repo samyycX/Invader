@@ -46,6 +46,8 @@ public class AssaultRifle implements Gun {
             // 转换成坐标
             Pos pos = player.getPosition().add(vec1.x(), vec1.y()+player.getEyeHeight()-0.4, vec1.z());
 
+            sendCooldownPacket(player);
+
             Instance instance = player.getInstance();
             // 判断是否击中实体
             if (!instance.getNearbyEntities(pos, Gun.HIT_RANGE_CHECK).isEmpty()) {
@@ -96,8 +98,7 @@ public class AssaultRifle implements Gun {
                 break;
             }
 
-
-            player.sendPacket(getFiringParticle(pos));
+            GamePacket.sendPacket(player, getFiringParticle(pos));
         }
     }
 
@@ -107,8 +108,8 @@ public class AssaultRifle implements Gun {
     }
 
     @Override
-    public ItemStack getItemStack() {
-        return GameData.ASSAULT_RIFLE_ITEMSTACK.withTag(Tag.String("gun"), getTag());
+    public ItemStack getRawItemStack() {
+        return GameData.ASSAULT_RIFLE_ITEMSTACK;
     }
 
     @Override
@@ -127,7 +128,7 @@ public class AssaultRifle implements Gun {
     }
 
     @Override
-    public String getTag() {
-        return "assault_rifle";
+    public int getEachAmmoReloadTime() {
+        return 1;
     }
 }

@@ -31,7 +31,9 @@ public class GameParticle {
                     writer.write(block.stateId());
                 }
         );
-        player.sendPacket(particlePacket);
+        player.getInstance().getPlayers().forEach(everyPlayer -> {
+            everyPlayer.sendPacket(particlePacket);
+        });
     }
 
 }
