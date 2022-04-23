@@ -3,9 +3,11 @@ package com.samyyc.invader;
 import com.samyyc.invader.command.vanilla.*;
 import com.samyyc.invader.feature.Features;
 import com.samyyc.invader.game.IGameManager;
+import com.samyyc.invader.game.meteoritemode.MeteoriteGameManager;
 import com.samyyc.invader.game.singlemode.SingleGameManager;
 import com.samyyc.invader.gun.GunsManager;
 import com.samyyc.invader.gun.data.BlockBreakStage;
+import com.samyyc.invader.gun.misc.BulletManager;
 import com.samyyc.invader.name.T;
 import com.samyyc.invader.util.logger.Logger;
 import net.minestom.server.MinecraftServer;
@@ -13,6 +15,8 @@ import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.EventNode;
 import net.minestom.server.event.GlobalEventHandler;
+import net.minestom.server.event.entity.EntityTickEvent;
+import net.minestom.server.event.entity.EntityVelocityEvent;
 import net.minestom.server.event.player.*;
 import net.minestom.server.event.server.ServerListPingEvent;
 import net.minestom.server.instance.InstanceContainer;
@@ -31,6 +35,7 @@ public class Main {
     public static InstanceContainer instance;
 
     public static IGameManager gameManager;
+    public static MeteoriteGameManager meteoriteGameManager;
 
     public static void main(String[] args) {
         // 初始化服务器
@@ -38,11 +43,11 @@ public class Main {
         InstanceManager instanceManager = MinecraftServer.getInstanceManager();
 
         DimensionTypeManager manager = new DimensionTypeManager();
-        DimensionType a = DimensionType.builder(NamespaceID.from("minecraft:overworld")).ultrawarm(false).natural(true).piglinSafe(false).respawnAnchorSafe(false).bedSafe(true).raidCapable(true).skylightEnabled(true).ceilingEnabled(false).fixedTime((Long)null).ambientLight(16.0F).height(384).minY(-64).logicalHeight(384).infiniburn(NamespaceID.from("minecraft:infiniburn_overworld")).build();
-        manager.addDimension(a);
+        //DimensionType a = DimensionType.builder(NamespaceID.from("minecraft:overworld")).ultrawarm(false).natural(true).piglinSafe(false).respawnAnchorSafe(false).bedSafe(true).raidCapable(true).skylightEnabled(true).ceilingEnabled(false).fixedTime((Long)null).ambientLight(16.0F).height(384).minY(-64).logicalHeight(384).infiniburn(NamespaceID.from("minecraft:infiniburn_overworld")).build();
+        //manager.addDimension(a);
 
         // 创建实例
-        Main.instance = instanceManager.createInstanceContainer(a);
+        Main.instance = instanceManager.createInstanceContainer();
         BlockBreakStage.blockBreakStage.put(instance, new HashMap<>());
 
         // 设置区块生成器
@@ -84,6 +89,10 @@ public class Main {
         gameManager = new SingleGameManager();
         gameManager.newGame();
 
+        meteoriteGameManager = new MeteoriteGameManager();
+        meteoriteGameManager.newGame();
+
+        BulletManager.init();
 
         Features.combat().hook(EventNode.class.cast(instance.eventNode()));
 
