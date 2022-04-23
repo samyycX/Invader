@@ -37,10 +37,12 @@ public class GunsManager {
         Gun rpg = new RPG();
         Gun awp = new AWP();
         Gun testgun = new TestGun();
+        Gun axototlGun = new AxototlGun();
         guns.put(rifle.getTag(), rifle);
         guns.put(rpg.getTag(), rpg);
         guns.put(awp.getTag(), awp);
         guns.put(testgun.getTag(), testgun);
+        guns.put(axototlGun.getTag(), axototlGun);
     }
 
     public static void hookEvent(EventNode<InstanceEvent> node) {

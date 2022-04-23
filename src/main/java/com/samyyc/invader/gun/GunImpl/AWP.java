@@ -1,39 +1,26 @@
 package com.samyyc.invader.gun.GunImpl;
 
 import com.samyyc.invader.gun.Gun;
-import com.samyyc.invader.gun.misc.Bullet;
-import com.samyyc.invader.gun.misc.BulletManager;
+import com.samyyc.invader.gun.bullet.Bullet;
+import com.samyyc.invader.gun.bullet.BulletManager;
 import com.samyyc.invader.gun.packet.GamePacket;
-import com.samyyc.invader.gun.util.GameUtil;
 import com.samyyc.invader.util.Pair;
-import com.samyyc.invader.util.Tuple;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.MinecraftServer;
-import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
-import net.minestom.server.entity.Entity;
-import net.minestom.server.entity.EntityType;
-import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.entity.Player;
-import net.minestom.server.entity.damage.DamageType;
-import net.minestom.server.instance.block.Block;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.server.network.packet.server.play.ParticlePacket;
 import net.minestom.server.particle.Particle;
 import net.minestom.server.particle.ParticleCreator;
+import net.minestom.server.registry.Registry;
 import net.minestom.server.tag.Tag;
-import net.minestom.server.timer.ExecutionType;
-import net.minestom.server.timer.TaskSchedule;
-import net.minestom.server.utils.block.BlockIterator;
+import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
-
-import javax.swing.text.html.HTML;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class AWP implements Gun {
     @Override
@@ -56,8 +43,6 @@ public class AWP implements Gun {
 
                     return Pair.of(pos, false);
                 });
-
-
         BulletManager.submitBullet(bullet, 200);
 
         /*
