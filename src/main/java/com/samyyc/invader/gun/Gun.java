@@ -86,7 +86,6 @@ public interface Gun {
         return particlePacket;
     }
 
-    // 这个东西必须和类名一致！！！！！！！！！！！！！
     default String getTag() {
         return this.getClass()
                 .getSimpleName()
@@ -106,6 +105,7 @@ public interface Gun {
             if (nowAmmo.get() >= getAmmo()) {
                 return;
             }
+
             MinecraftServer.getSchedulerManager().submitTask(() -> {
 
                 String ammoHad = "|".repeat(nowAmmo.get());

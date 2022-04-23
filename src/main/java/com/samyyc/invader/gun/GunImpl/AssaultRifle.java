@@ -44,6 +44,7 @@ public class AssaultRifle implements Gun {
 
         // 射程
         player.playSound(getFiringSound());
+
         for (int i = 1; i <= getMaxFlyingDistance(); i++) {
             // 向量增加
             Vec vec1 = vec.normalize().mul(Gun.VECTOR_TWO_POINT_INTERVAL*i);

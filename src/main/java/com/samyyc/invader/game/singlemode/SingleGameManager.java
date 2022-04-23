@@ -4,9 +4,8 @@ import com.samyyc.invader.Main;
 import com.samyyc.invader.game.IGameController;
 import com.samyyc.invader.game.IGameManager;
 import com.samyyc.invader.gun.GunsManager;
+import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
-import net.minestom.server.event.player.PlayerMoveEvent;
-import net.minestom.server.instance.Instance;
 
 import java.util.*;
 
@@ -18,7 +17,10 @@ public class SingleGameManager implements IGameManager {
     @Override
     public IGameController newGame() {
         int id = RUNNING_GAME.size();
-        RUNNING_GAME.add(SingleGameController.newGame());
+        SingleGameController gameController = new SingleGameController();
+        gameController.setInstance(MinecraftServer.getInstanceManager().createInstanceContainer());
+        gameController.setSourceInstance(Main.instance);
+        RUNNING_GAME.add(gameController);
 
         GunsManager.hookEvent(RUNNING_GAME.get(id).getInstance().eventNode());
         return RUNNING_GAME.get(id);
@@ -43,7 +45,7 @@ public class SingleGameManager implements IGameManager {
         }
         for (int i = 0; i < RUNNING_GAME.size(); i++) {
             IGameController game = RUNNING_GAME.get(i);
-            if (!game.checkIfMaximumPlayer()) {
+            if (!game.checkIfEnable()) {
                 game.addPlayer(player);
                 PLAYER_MAP.put(player, i);
                 return;

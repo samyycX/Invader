@@ -3,6 +3,7 @@ package com.samyyc.invader.game.singlemode;
 import com.samyyc.invader.Main;
 import com.samyyc.invader.game.IGameController;
 import com.samyyc.invader.game.PlayerKillPlayerEvent;
+import com.samyyc.invader.gun.misc.GameExplosionSupplier;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;
@@ -19,26 +20,22 @@ import java.util.*;
 
 public class SingleGameController implements IGameController {
 
-    private final Instance instance;
-    private final Instance sourceInstance;
+    private Instance instance;
+    private Instance sourceInstance;
     private final Map<Player, Integer> players = new HashMap<>();
     private Player winner;
+    private boolean closed = false;
 
     private static final int WINNER_SCORE = 10;
 
-    public SingleGameController(Instance instance, Instance sourceInstance) {
+    @Override
+    public void setInstance(Instance instance) {
         this.instance = instance;
-        this.sourceInstance = sourceInstance;
-        this.hookEvent();
     }
 
-    public static IGameController newGame() {
-        Instance instance = MinecraftServer.getInstanceManager().createInstanceContainer();
-        instance.setGenerator(unit -> {
-            // 换成游戏地图
-            unit.modifier().fillHeight(0, 40, Block.STONE);
-        });
-        return new SingleGameController(instance, Main.instance);
+    @Override
+    public void setSourceInstance(Instance instance) {
+        this.sourceInstance = instance;
     }
 
     @Override
@@ -88,6 +85,7 @@ public class SingleGameController implements IGameController {
                     , Component.empty()));
             player.setInstance(targetInstance);
         }
+        closed = true;
     }
 
     @Override
@@ -96,7 +94,7 @@ public class SingleGameController implements IGameController {
     }
 
     @Override
-    public boolean checkIfMaximumPlayer() {
+    public boolean checkIfEnable() {
         return players.size() >= 10;
     }
 
@@ -125,5 +123,10 @@ public class SingleGameController implements IGameController {
                 }
             }
         });
+    }
+
+    @Override
+    public boolean getClosed() {
+        return closed;
     }
 }

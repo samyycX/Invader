@@ -6,6 +6,10 @@ import org.jetbrains.annotations.Nullable;
 
 public interface IGameController {
 
+    void setInstance(Instance instance);
+
+    void setSourceInstance(Instance instance);
+
     void addPlayer(Player player);
 
     void removePlayer(Player player, @Nullable Instance targetInstance);
@@ -16,6 +20,8 @@ public interface IGameController {
 
     Instance getInstance();
 
-    boolean checkIfMaximumPlayer();
+    boolean checkIfEnable();
+
+    boolean getClosed();
 
 }

@@ -1,18 +1,12 @@
 package com.samyyc.invader.gun;
 
 import com.samyyc.invader.Main;
-import com.samyyc.invader.gun.GunImpl.AWP;
-import com.samyyc.invader.gun.GunImpl.AssaultRifle;
-import com.samyyc.invader.gun.GunImpl.RPG;
-import com.samyyc.invader.gun.GunImpl.TestRPG;
+import com.samyyc.invader.gun.GunImpl.*;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.Event;
 import net.minestom.server.event.EventNode;
-import net.minestom.server.event.player.PlayerHandAnimationEvent;
-import net.minestom.server.event.player.PlayerPacketEvent;
-import net.minestom.server.event.player.PlayerSwapItemEvent;
-import net.minestom.server.event.player.PlayerUseItemEvent;
+import net.minestom.server.event.player.*;
 import net.minestom.server.event.trait.InstanceEvent;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
@@ -42,11 +36,11 @@ public class GunsManager {
         Gun rifle = new AssaultRifle();
         Gun rpg = new RPG();
         Gun awp = new AWP();
-        Gun testrpg = new TestRPG();
+        Gun testgun = new TestGun();
         guns.put(rifle.getTag(), rifle);
         guns.put(rpg.getTag(), rpg);
         guns.put(awp.getTag(), awp);
-        guns.put(testrpg.getTag(), testrpg);
+        guns.put(testgun.getTag(), testgun);
     }
 
     public static void hookEvent(EventNode<InstanceEvent> node) {
@@ -125,6 +119,7 @@ public class GunsManager {
 
             }
         });
+
     }
 
     private static Gun findGun(String gunName) {
