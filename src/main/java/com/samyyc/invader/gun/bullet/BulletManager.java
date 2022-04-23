@@ -1,10 +1,8 @@
-package com.samyyc.invader.gun.misc;
+package com.samyyc.invader.gun.bullet;
 
 import net.minestom.server.MinecraftServer;
-import net.minestom.server.Tickable;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.LivingEntity;
-import net.minestom.server.entity.Player;
 import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.timer.ExecutionType;
@@ -28,19 +26,20 @@ public class BulletManager {
                                 bullet.getInstance().setBlock(bullet.getPos(), Block.AIR);
                             } else {
                                 if (!bullet.getInstance().getBlock(bullet.getPos()).isAir()) {
-                                    bulletIt.remove();
-                                    continue;
+                                    bullet.callOnBlock(bullet.getInstance().getBlock(bullet.getPos()));
                                 }
                             }
 
                             Collection<Entity> nearByEntities = bullet.getInstance().getNearbyEntities(bullet.getPos(), 1);
                             if (!nearByEntities.isEmpty()) {
-                                nearByEntities.forEach(entity -> {
-                                    if (entity != bullet.getPlayer() && entity instanceof LivingEntity livingEntity) {
-                                        livingEntity.damage(DamageType.fromPlayer(bullet.getPlayer()), bullet.getDamage());
-                                    }
-                                });
-                                bulletIt.remove();
+                                if (!nearByEntities.contains(bullet.getPlayer())) {
+                                    nearByEntities.forEach(entity -> {
+                                        if (entity instanceof LivingEntity livingEntity) {
+                                            livingEntity.damage(DamageType.fromPlayer(bullet.getPlayer()), bullet.getDamage());
+                                            bullet.callOnEntity(livingEntity);
+                                        }
+                                    });
+                                }
                             }
                             entry.getKey().tick(1);
                         }

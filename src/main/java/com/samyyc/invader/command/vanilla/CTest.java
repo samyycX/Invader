@@ -43,6 +43,7 @@ public class CTest extends Command {
             player.getInventory().addItemStack(GunsManager.getGunsItemstack("awp"));
             //player.getInventory().addItemStack(GunsManager.getGunsItemstack("testrpg"));
             player.getInventory().addItemStack(GunsManager.getGunsItemstack("testgun"));
+            player.getInventory().addItemStack(GunsManager.getGunsItemstack("axototlgun"));
 
 
             //Main.meteoriteGameManager.join(player);

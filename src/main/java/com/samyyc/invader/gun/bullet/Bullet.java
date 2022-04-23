@@ -1,33 +1,29 @@
-package com.samyyc.invader.gun.misc;
+package com.samyyc.invader.gun.bullet;
 
 import com.samyyc.invader.util.Pair;
-import com.samyyc.invader.util.Tuple;
-import net.minestom.server.MinecraftServer;
 import net.minestom.server.Tickable;
-import net.minestom.server.collision.BoundingBox;
-import net.minestom.server.collision.CollisionUtils;
 import net.minestom.server.coordinate.Pos;
-import net.minestom.server.coordinate.Vec;
+import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.Player;
 import net.minestom.server.instance.Instance;
-import net.minestom.server.instance.generator.UnitModifier;
-
-import java.util.function.BiConsumer;
-import java.util.function.BiPredicate;
-import java.util.function.Supplier;
+import net.minestom.server.instance.block.Block;
 
 public class Bullet implements Tickable {
 
     private Pos pos;
     private Player player;
-    private BulletPredicate<Pos> predicate;
     private int interval;
     private boolean canBreakBlock;
     private float damage;
 
+
+    private BulletOnTickPredicate predicate;
+    private BulletOnBlockPredicate onBlockPredicate = (pos1, block) -> true;
+    private BulletOnEntityPredicate onEntityPredicate = (pos1, entity) -> true;
+
     private boolean ended = false;
 
-    public Bullet(Player sender, Pos pos, int interval, boolean canBreakBlock, float damage, BulletPredicate<Pos> predicate) {
+    public Bullet(Player sender, Pos pos, int interval, boolean canBreakBlock, float damage, BulletOnTickPredicate predicate) {
         this.pos = pos;
         this.player = sender;
         this.predicate = predicate;
@@ -48,6 +44,18 @@ public class Bullet implements Tickable {
         this.ended = pair.V();
         if (!player.getInstance().isChunkLoaded(pos)) {
             ended = true;
+        }
+    }
+
+    public void callOnEntity(Entity entity) {
+        if (this.onEntityPredicate != null) {
+            ended = onEntityPredicate.run(pos, entity);
+        }
+    }
+
+    public void callOnBlock(Block block) {
+        if (this.onBlockPredicate != null) {
+            ended = onBlockPredicate.run(pos, block);
         }
     }
 
@@ -87,7 +95,7 @@ public class Bullet implements Tickable {
         this.player = player;
     }
 
-    public void setPredicate(BulletPredicate<Pos> predicate) {
+    public void setPredicate(BulletOnTickPredicate predicate) {
         this.predicate = predicate;
     }
 
@@ -105,5 +113,13 @@ public class Bullet implements Tickable {
 
     public void setDamage(float damage) {
         this.damage = damage;
+    }
+
+    public void setOnBlockPredicate(BulletOnBlockPredicate onBlockPredicate) {
+        this.onBlockPredicate = onBlockPredicate;
+    }
+
+    public void setOnEntityPredicate(BulletOnEntityPredicate onEntityPredicate) {
+        this.onEntityPredicate = onEntityPredicate;
     }
 }
