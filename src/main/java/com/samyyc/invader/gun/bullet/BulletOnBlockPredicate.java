@@ -6,6 +6,6 @@ import net.minestom.server.instance.block.Block;
 @FunctionalInterface
 public interface BulletOnBlockPredicate {
 
-    boolean run(Pos pos, Block block);
+    boolean run(Pos pos, Block block, Bullet bullet);
 
 }

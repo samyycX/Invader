@@ -64,7 +64,7 @@ public class Main {
 
         // 注册枪械
         GunsManager.init();
-        GunsManager.hookEvent(EventNode.class.cast(instance.eventNode()));
+        GunsManager.hookEvent(globalEventHandler);
 
 
         // 注册命令
@@ -86,7 +86,7 @@ public class Main {
         meteoriteGameManager = new MeteoriteGameManager();
         meteoriteGameManager.newGame();
 
-        BulletManager.init();
+        BulletManager bulletManager = new BulletManager(instance);
 
         Features.combat().hook(EventNode.class.cast(instance.eventNode()));
 

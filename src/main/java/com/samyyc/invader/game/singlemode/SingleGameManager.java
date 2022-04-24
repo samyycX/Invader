@@ -22,7 +22,6 @@ public class SingleGameManager implements IGameManager {
         gameController.setSourceInstance(Main.instance);
         RUNNING_GAME.add(gameController);
 
-        GunsManager.hookEvent(RUNNING_GAME.get(id).getInstance().eventNode());
         return RUNNING_GAME.get(id);
     }
 

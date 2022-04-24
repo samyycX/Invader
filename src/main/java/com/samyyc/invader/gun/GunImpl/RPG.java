@@ -1,6 +1,8 @@
 package com.samyyc.invader.gun.GunImpl;
 
 import com.samyyc.invader.gun.Gun;
+import com.samyyc.invader.gun.GunsManager;
+import com.samyyc.invader.gun.bullet.BulletManager;
 import com.samyyc.invader.gun.data.GameData;
 import com.samyyc.invader.gun.entity.WitherSkullMissile;
 import com.samyyc.invader.gun.packet.GamePacket;
@@ -26,7 +28,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RPG implements Gun {
     @Override
-    public void fire(@NotNull Player player) {
+    public void fire(@NotNull Player player, BulletManager bulletManager) {
 
         Entity skull = new Entity(EntityType.WITHER_SKULL);
         skull.setInstance(player.getInstance(), player.getPosition().add(0, player.getEyeHeight(), 0));
@@ -73,7 +75,7 @@ public class RPG implements Gun {
                             if (entity instanceof LivingEntity && entity != player) {
                                 ((LivingEntity) entity).damage(DamageType.fromPlayer(player), getDamage());
                                 targetIsPlayer.set(false);
-                                callKillingEvent(player, entity, getDamage());
+                                GunsManager.callKillingEvent(player, entity, getDamage());
                             }
                         });
                         if (!targetIsPlayer.get()) return TaskSchedule.stop();

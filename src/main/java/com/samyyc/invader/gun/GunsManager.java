@@ -1,13 +1,18 @@
 package com.samyyc.invader.gun;
 
 import com.samyyc.invader.Main;
+import com.samyyc.invader.game.PlayerKillPlayerEvent;
 import com.samyyc.invader.gun.GunImpl.*;
+import com.samyyc.invader.gun.bullet.BulletManager;
 import net.minestom.server.MinecraftServer;
+import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.Event;
 import net.minestom.server.event.EventNode;
+import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.player.*;
 import net.minestom.server.event.trait.InstanceEvent;
+import net.minestom.server.instance.Instance;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.server.network.packet.client.ClientPacket;
@@ -19,34 +24,24 @@ import net.minestom.server.timer.TaskSchedule;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class GunsManager {
 
     private static final Map<String, Gun> guns = new HashMap<>();
 
+    private static final Map<Instance, BulletManager> bulletManagerMap = new HashMap<>();
+
     public static void init() {
-        Gun rifle = new AssaultRifle();
-        Gun rpg = new RPG();
-        Gun awp = new AWP();
-        Gun testgun = new TestGun();
-        Gun axototlGun = new AxototlGun();
-        guns.put(rifle.getTag(), rifle);
-        guns.put(rpg.getTag(), rpg);
-        guns.put(awp.getTag(), awp);
-        guns.put(testgun.getTag(), testgun);
-        guns.put(axototlGun.getTag(), axototlGun);
+        addGun(new AssaultRifle());
+        addGun(new AxototlGun());
+        addGun(new TestGun());
+        addGun(new RPG());
+        addGun(new AWP());
     }
 
-    public static void hookEvent(EventNode<InstanceEvent> node) {
-        node.addListener(PlayerUseItemEvent.class, e -> {
+    public static void hookEvent(GlobalEventHandler globalEventHandler) {
+        globalEventHandler.addListener(PlayerUseItemEvent.class, e -> {
 
             String gunName = e.getItemStack().getTag(Tag.String("gun"));
             if (gunName != null) {
@@ -57,7 +52,12 @@ public class GunsManager {
                             return;
                         }
 
-                        gun.fire(e.getPlayer());
+                        if (!bulletManagerMap.containsKey(e.getInstance())) {
+                            BulletManager bulletManager = new BulletManager(e.getInstance());
+                            bulletManager.init();
+                            bulletManagerMap.put(e.getInstance(), bulletManager);
+                        }
+                        gun.fire(e.getPlayer(), bulletManagerMap.get(e.getInstance()));
                         e.getPlayer().setItemInMainHand(e.getItemStack()
                                 .withTag(
                                     Tag.Integer("ammo"),
@@ -75,7 +75,7 @@ public class GunsManager {
             }
         });
 
-        node.addListener(PlayerSwapItemEvent.class, e -> {
+        globalEventHandler.addListener(PlayerSwapItemEvent.class, e -> {
             e.setCancelled(true);
             boolean reload = false;
             ItemStack mainHand = e.getOffHandItem();
@@ -88,7 +88,7 @@ public class GunsManager {
             if (!reload) e.setCancelled(false);
         });
 
-        node.addListener(PlayerHandAnimationEvent.class, e -> {
+        globalEventHandler.addListener(PlayerHandAnimationEvent.class, e -> {
             e.getPlayer().addEffect(
                     new Potion(
                             PotionEffect.SLOWNESS,
@@ -133,5 +133,16 @@ public class GunsManager {
         return findGun(tag).getItemStack();
     }
 
+    public static void callKillingEvent(Player killer, Entity dead, double damage) {
+        if (dead instanceof Player) {
+            if (((Player) dead).getHealth() - damage <= 0) {
+                killer.getInstance().eventNode().call(new PlayerKillPlayerEvent(killer, (Player) dead, killer.getInstance()));
+            }
+        }
+    }
+
+    public static void addGun(Gun gun) {
+        guns.put(gun.getTag(), gun);
+    }
 
 }

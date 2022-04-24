@@ -16,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class AxototlGun implements Gun {
     @Override
-    public void fire(@NotNull Player player) {
+    public void fire(@NotNull Player player, BulletManager bulletManager) {
 
         Bullet bullet = new Bullet();
         bullet.setDamage(1);
@@ -35,11 +35,11 @@ public class AxototlGun implements Gun {
         bullet.setPredicate(
                 (pos) -> {
                     GamePacket.sendPacket(player, getFiringParticle(entity.getPosition()));
-                    return Pair.of(pos, false);
+                    return pos;
                 }
         );
 
-        BulletManager.submitBullet(bullet, 999);
+        bulletManager.submitBullet(bullet, 999);
 
     }
 
