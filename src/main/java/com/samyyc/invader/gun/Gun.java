@@ -1,6 +1,7 @@
 package com.samyyc.invader.gun;
 
 import com.samyyc.invader.game.PlayerKillPlayerEvent;
+import com.samyyc.invader.gun.bullet.BulletManager;
 import com.samyyc.invader.gun.data.GameData;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
@@ -29,7 +30,7 @@ public interface Gun {
     public static double HIT_RANGE_CHECK = 2;
     public static int TICK_TO_MS = 1000 / MinecraftServer.TICK_PER_SECOND;
 
-    void fire(@NotNull Player player);
+    void fire(@NotNull Player player, BulletManager bulletManager);
 
     int getAmmo();
 
@@ -141,12 +142,6 @@ public interface Gun {
         );
     }
 
-    default void callKillingEvent(Player killer, Entity dead, double damage) {
-        if (dead instanceof Player) {
-            if (((Player) dead).getHealth() - damage <= 0) {
-                killer.getInstance().eventNode().call(new PlayerKillPlayerEvent(killer, (Player) dead, killer.getInstance()));
-            }
-        }
-    }
+
 
 }

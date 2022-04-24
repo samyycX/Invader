@@ -15,6 +15,7 @@ public class GameExplosionSupplier implements ExplosionSupplier {
     @Override
     public Explosion createExplosion(float centerX, float centerY, float centerZ, float strength, NBTCompound additionalData) {
         Explosion explosion = new Explosion(centerX, centerY, centerZ, strength) {
+
             @Override
             protected List<Point> prepare(Instance instance) {
                 int[] x = new int[]{-2,-1,0,1,2};
@@ -28,7 +29,6 @@ public class GameExplosionSupplier implements ExplosionSupplier {
                         }
                     }
                 }
-                //apply(instance);
                 return points;
             }
         };

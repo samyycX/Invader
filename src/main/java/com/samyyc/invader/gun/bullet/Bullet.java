@@ -18,8 +18,8 @@ public class Bullet implements Tickable {
 
 
     private BulletOnTickPredicate predicate;
-    private BulletOnBlockPredicate onBlockPredicate = (pos1, block) -> true;
-    private BulletOnEntityPredicate onEntityPredicate = (pos1, entity) -> true;
+    private BulletOnBlockPredicate onBlockPredicate = (pos1, block, bullet) -> true;
+    private BulletOnEntityPredicate onEntityPredicate = (pos1, entity, bullet) -> true;
 
     private boolean ended = false;
 
@@ -38,25 +38,20 @@ public class Bullet implements Tickable {
 
     @Override
     public void tick(long time) {
-        Pair<Pos, Boolean> pair = this.predicate.run(pos);
 
-        this.pos = pair.K();
-        this.ended = pair.V();
+        this.pos = this.predicate.run(pos);
+
         if (!player.getInstance().isChunkLoaded(pos)) {
             ended = true;
         }
     }
 
     public void callOnEntity(Entity entity) {
-        if (this.onEntityPredicate != null) {
-            ended = onEntityPredicate.run(pos, entity);
-        }
+        ended = onEntityPredicate.run(pos, entity, this);
     }
 
     public void callOnBlock(Block block) {
-        if (this.onBlockPredicate != null) {
-            ended = onBlockPredicate.run(pos, block);
-        }
+        ended = onBlockPredicate.run(pos, block, this);
     }
 
     public boolean getEnded() {

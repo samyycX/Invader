@@ -1,6 +1,8 @@
 package com.samyyc.invader.gun.GunImpl;
 
 import com.samyyc.invader.gun.Gun;
+import com.samyyc.invader.gun.GunsManager;
+import com.samyyc.invader.gun.bullet.BulletManager;
 import com.samyyc.invader.gun.data.BlockBreakStage;
 import com.samyyc.invader.gun.data.GameData;
 import com.samyyc.invader.gun.packet.GamePacket;
@@ -35,7 +37,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class AssaultRifle implements Gun {
 
     @Override
-    public void fire(Player player) {
+    public void fire(Player player, BulletManager bulletManager) {
         // 获取玩家当前朝向的向量
         Vec vec = player.getPosition().direction();
         Pos originPos = player.getPosition();
@@ -63,7 +65,7 @@ public class AssaultRifle implements Gun {
                         livingEntity.damage(DamageType.fromPlayer(player), getDamage());
 
                         player.playSound(GameSound.HIT_SOUND);
-                        callKillingEvent(player, livingEntity, getDamage());
+                        GunsManager.callKillingEvent(player, livingEntity, getDamage());
                     }
                 });
                 // 如果击中了发射者以外的实体，则阻止子弹继续飞行

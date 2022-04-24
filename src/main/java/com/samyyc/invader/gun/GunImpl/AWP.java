@@ -20,19 +20,23 @@ import net.minestom.server.particle.ParticleCreator;
 import net.minestom.server.registry.Registry;
 import net.minestom.server.tag.Tag;
 import net.minestom.server.utils.NamespaceID;
+import net.minestom.server.utils.binary.BinaryWriter;
 import org.jetbrains.annotations.NotNull;
+
+import java.io.IOException;
+import java.util.Random;
 
 public class AWP implements Gun {
     @Override
-    public void fire(@NotNull Player player) {
+    public void fire(@NotNull Player player, BulletManager bulletManager) {
 
         int zoomLevel = player.getItemInMainHand().getTag(Tag.Integer("scoped"));
 
         Bullet bullet = new Bullet();
         bullet.setPlayer(player);
-        bullet.setPos(player.getPosition());
+        bullet.setPos(player.getPosition().add(0, player.getEyeHeight()-0.6, 0));
         bullet.setInterval(1);
-        bullet.setCanBreakBlock(true);
+        bullet.setCanBreakBlock(false);
         bullet.setDamage(getDamage());
         bullet.setPredicate(
                 (pos) -> {
@@ -41,47 +45,24 @@ public class AWP implements Gun {
                     GamePacket.sendPacket(player, getFiringParticle(pos));
 
 
-                    return Pair.of(pos, false);
+                    return pos;
                 });
-        BulletManager.submitBullet(bullet, 200);
 
-        /*
-        Entity target = player.getLineOfSightEntity(0.2, null);
+        bullet.setOnEntityPredicate((pos, entity, bullet1) -> {
+            ParticlePacket particlePacket = ParticleCreator.createParticlePacket(
+                    Particle.LAVA,
+                    pos.x(),
+                    pos.y(),
+                    pos.z(),
+                    1,1,1,5
+            );
+            GamePacket.sendPacket(bullet.getInstance(), particlePacket);
+            return true;
+        });
 
-        if (target instanceof LivingEntity entity) {
-            entity.damage(DamageType.fromPlayer(player), getDamage());
-            GamePacket.drawLine(player.getPosition(), entity.getPosition(), 0.2, Particle.END_ROD, player);
-            callKillingEvent(player, entity, getDamage());
-            System.out.println(1);
-        } else {
-            Vec vec = player.getPosition().direction();
-            GameUtil.getLineOfSight(player, getMaxFlyingDistance()).forEach(point -> {
-                Pos pos = new Pos(point.x(), point.y(), point.z());
-                System.out.println(pos);
-                GamePacket.sendPacket(player, getFiringParticle(pos));
-            });
-        }
+        sendCooldownPacket(player);
 
-         */
-
-
-        /*
-        MinecraftServer.getSchedulerManager().submitTask(
-                () -> {
-                    if (counter.get() >= getMaxFlyingDistance()) {
-                        return TaskSchedule.stop();
-                    }
-
-                    Vec vec = originVec.normalize().mul(counter.get()*4);
-                    Pos pos = originPos.add(vec.x(), vec.y(), vec.z());
-                    GamePacket.sendPacket(player, getFiringParticle(pos));
-                    counter.getAndIncrement();
-                    return TaskSchedule.tick(1);
-                },
-                ExecutionType.SYNC
-        );
-
-         */
+        bulletManager.submitBullet(bullet, 200);
 
     }
 
@@ -121,14 +102,31 @@ public class AWP implements Gun {
     @Override
     public ParticlePacket getFiringParticle(Pos pos) {
         return ParticleCreator.createParticlePacket(
-                Particle.END_ROD,
+                Particle.DUST,
+                false,
                 pos.x(),
                 pos.y(),
                 pos.z(),
                 0,
                 0,
                 0,
-                0
+                2,
+                0,
+                (writer) -> {
+                    writer.writeFloat((float) Math.random());
+                    writer.writeFloat((float) Math.random());
+                    writer.writeFloat((float) Math.random());
+                    writer.writeFloat(2F);
+                    //try {
+                        //writer.write(100);
+                        //writer.write(100);
+                        //writer.write(100);
+                        //writer.write(3);
+                    //} catch (IOException e) {
+                    //    e.printStackTrace();
+                    //}
+                }
+
         );
     }
 }
