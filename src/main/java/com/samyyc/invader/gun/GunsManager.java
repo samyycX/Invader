@@ -10,6 +10,7 @@ import net.minestom.server.entity.Player;
 import net.minestom.server.event.Event;
 import net.minestom.server.event.EventNode;
 import net.minestom.server.event.GlobalEventHandler;
+import net.minestom.server.event.item.ItemDropEvent;
 import net.minestom.server.event.player.*;
 import net.minestom.server.event.trait.InstanceEvent;
 import net.minestom.server.instance.Instance;
@@ -58,10 +59,10 @@ public class GunsManager {
                             bulletManagerMap.put(e.getInstance(), bulletManager);
                         }
                         gun.fire(e.getPlayer(), bulletManagerMap.get(e.getInstance()));
-                        e.getPlayer().setItemInMainHand(e.getItemStack()
+                        e.getPlayer().setItemInMainHand(e.getPlayer().getItemInMainHand()
                                 .withTag(
                                     Tag.Integer("ammo"),
-                                    e.getItemStack().getTag(Tag.Integer("ammo")) - 1
+                                        e.getPlayer().getItemInMainHand().getTag(Tag.Integer("ammo")) - 1
                                 )
                                 .withTag(
                                         Tag.Long("lastRefresh"),
@@ -69,33 +70,22 @@ public class GunsManager {
                                 )
                         );
                     } else {
-                        gun.reloadAmmo(e.getPlayer());
+                        gun.reloadAmmo(e.getPlayer(), e.getPlayer().getHeldSlot());
                     }
                 }
             }
         });
 
-        globalEventHandler.addListener(PlayerSwapItemEvent.class, e -> {
-            e.setCancelled(true);
-            boolean reload = false;
-            ItemStack mainHand = e.getOffHandItem();
-            if (mainHand.hasTag(Tag.String("gun"))) {
-                reload = true;
-                e.getPlayer().setItemInMainHand(mainHand);
-                String gunName = mainHand.getTag(Tag.String("gun"));
-                findGun(gunName).reloadAmmo(e.getPlayer());
+        globalEventHandler.addListener(ItemDropEvent.class, e -> {
+            if (e.getItemStack().hasTag(Tag.String("gun"))) {
+                if (!e.getItemStack().getTag(Tag.Boolean("reloading"))) {
+                    findGun(e.getItemStack().getTag(Tag.String("gun"))).reloadAmmo(e.getPlayer(), e.getPlayer().getHeldSlot());
+                }
+                e.setCancelled(true);
             }
-            if (!reload) e.setCancelled(false);
         });
 
         globalEventHandler.addListener(PlayerHandAnimationEvent.class, e -> {
-            e.getPlayer().addEffect(
-                    new Potion(
-                            PotionEffect.SLOWNESS,
-                            (byte) 100,
-                            99999
-                    )
-            );
             if (e.getPlayer().getItemInMainHand().material() != Material.AIR
             &&
                 e.getPlayer().getItemInMainHand().hasTag(Tag.Integer("scoped"))) {
@@ -119,6 +109,20 @@ public class GunsManager {
                                 .withTag(Tag.Integer("scoped"), zoomLevel)
                 );
 
+            }
+        });
+
+        globalEventHandler.addListener(PlayerChangeHeldSlotEvent.class, e->{
+            e.setCancelled(true);
+            if (e.getPlayer().getInventory().getItemStack(e.getSlot()).hasTag(Tag.Boolean("reloading"))) {
+                boolean reloading = e.getPlayer().getInventory().getItemStack(e.getSlot()).getTag(Tag.Boolean("reloading"));
+                if (!reloading) {
+                    e.setCancelled(false);
+                } else {
+                    e.getPlayer().setHeldItemSlot(e.getSlot());
+                }
+            } else {
+                e.setCancelled(false);
             }
         });
 

@@ -100,9 +100,9 @@ public interface Gun {
         } else return false;
     }
 
-    default void reloadAmmo(Player player) {
-        if (player.getItemInMainHand().hasTag(Tag.Integer("ammo"))) {
-            AtomicInteger nowAmmo = new AtomicInteger(player.getItemInMainHand().getTag(Tag.Integer("ammo")));
+    default void reloadAmmo(Player player, int slot) {
+        if (player.getInventory().getItemStack(slot).hasTag(Tag.Integer("ammo"))) {
+            AtomicInteger nowAmmo = new AtomicInteger(player.getInventory().getItemStack(slot).getTag(Tag.Integer("ammo")));
             if (nowAmmo.get() >= getAmmo()) {
                 return;
             }
@@ -116,18 +116,23 @@ public interface Gun {
                 player.sendActionBar(Component.text(ammoHad, NamedTextColor.GREEN)
                         .append(Component.text(ammoNeedToReload, NamedTextColor.GRAY)));
 
+                ItemStack itemStack = player.getInventory().getItemStack(slot);
+                //System.out.println(itemStack);
                 if (nowAmmo.get() != getAmmo()) {
                     nowAmmo.getAndIncrement();
-                    player.setItemInMainHand(player.getItemInMainHand().withTag(Tag.Integer("ammo"), nowAmmo.get()));
                 } else {
-                    player.setItemInMainHand(player.getItemInMainHand().withTag(Tag.Boolean("reloading"), false));
+                    player.getInventory().setItemStack(slot,
+                            itemStack
+                                    .withTag(Tag.Integer("ammo"), getAmmo())
+                                    .withTag(Tag.Boolean("reloading"),false)
+                    );      
                     return TaskSchedule.stop();
                 }
 
-                player.setItemInMainHand(player.getItemInMainHand().withTag(Tag.Boolean("reloading"), true));
+                player.getInventory().setItemStack(slot, itemStack.withTag(Tag.Boolean("reloading"), true));
                 return TaskSchedule.tick(getEachAmmoReloadTime());
 
-            }, ExecutionType.ASYNC);
+            }, ExecutionType.SYNC);
         }
     }
 
