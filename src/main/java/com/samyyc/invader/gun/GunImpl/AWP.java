@@ -3,6 +3,7 @@ package com.samyyc.invader.gun.GunImpl;
 import com.samyyc.invader.gun.Gun;
 import com.samyyc.invader.gun.bullet.Bullet;
 import com.samyyc.invader.gun.bullet.BulletManager;
+import com.samyyc.invader.gun.bullet.BulletManagerV2;
 import com.samyyc.invader.gun.packet.GamePacket;
 import com.samyyc.invader.util.Pair;
 import net.kyori.adventure.key.Key;
@@ -62,7 +63,8 @@ public class AWP implements Gun {
 
         sendCooldownPacket(player);
 
-        bulletManager.submitBullet(bullet, 200);
+        //bulletManager.submitBullet(bullet, 200);
+        BulletManagerV2.addBullet(bullet);
 
     }
 

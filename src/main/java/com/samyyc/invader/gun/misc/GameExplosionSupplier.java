@@ -14,7 +14,7 @@ import java.util.List;
 public class GameExplosionSupplier implements ExplosionSupplier {
     @Override
     public Explosion createExplosion(float centerX, float centerY, float centerZ, float strength, NBTCompound additionalData) {
-        Explosion explosion = new Explosion(centerX, centerY, centerZ, strength) {
+        return new Explosion(centerX, centerY, centerZ, strength) {
 
             @Override
             protected List<Point> prepare(Instance instance) {
@@ -32,6 +32,5 @@ public class GameExplosionSupplier implements ExplosionSupplier {
                 return points;
             }
         };
-        return explosion;
     }
 }

@@ -1,6 +1,5 @@
 package com.samyyc.invader.gun.bullet;
 
-import com.samyyc.invader.util.Pair;
 import net.minestom.server.Tickable;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Entity;
@@ -17,9 +16,10 @@ public class Bullet implements Tickable {
     private float damage;
 
 
-    private BulletOnTickPredicate predicate;
+    private BulletOnTickPredicate predicate = pos1 -> pos1;
     private BulletOnBlockPredicate onBlockPredicate = (pos1, block, bullet) -> true;
     private BulletOnEntityPredicate onEntityPredicate = (pos1, entity, bullet) -> true;
+    private BulletOnEndPredicate onEndPredicate = (pos1, bullet) -> {};
 
     private boolean ended = false;
 
@@ -53,6 +53,8 @@ public class Bullet implements Tickable {
     public void callOnBlock(Block block) {
         ended = onBlockPredicate.run(pos, block, this);
     }
+
+    public void callOnEnd() {this.onEndPredicate.run(pos, this);}
 
     public boolean getEnded() {
         return ended;
@@ -116,5 +118,13 @@ public class Bullet implements Tickable {
 
     public void setOnEntityPredicate(BulletOnEntityPredicate onEntityPredicate) {
         this.onEntityPredicate = onEntityPredicate;
+    }
+
+    public void setOnEndPredicate(BulletOnEndPredicate onEndPredicate) {
+        this.onEndPredicate = onEndPredicate;
+    }
+
+    public BulletOnEndPredicate getOnEndPredicate() {
+        return onEndPredicate;
     }
 }

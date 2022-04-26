@@ -19,7 +19,9 @@ import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.InstanceManager;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.ping.ResponseData;
+import net.minestom.server.utils.NamespaceID;
 import net.minestom.server.utils.identity.NamedAndIdentified;
+import net.minestom.server.world.DimensionType;
 import net.minestom.server.world.DimensionTypeManager;
 
 import java.util.HashMap;
@@ -37,11 +39,11 @@ public class Main {
         InstanceManager instanceManager = MinecraftServer.getInstanceManager();
 
         DimensionTypeManager manager = new DimensionTypeManager();
-        //DimensionType a = DimensionType.builder(NamespaceID.from("minecraft:overworld")).ultrawarm(false).natural(true).piglinSafe(false).respawnAnchorSafe(false).bedSafe(true).raidCapable(true).skylightEnabled(true).ceilingEnabled(false).fixedTime((Long)null).ambientLight(16.0F).height(384).minY(-64).logicalHeight(384).infiniburn(NamespaceID.from("minecraft:infiniburn_overworld")).build();
-        //manager.addDimension(a);
+        DimensionType a = DimensionType.builder(NamespaceID.from("minecraft:overworld")).ultrawarm(false).natural(true).piglinSafe(false).respawnAnchorSafe(false).bedSafe(true).raidCapable(true).skylightEnabled(true).ceilingEnabled(false).fixedTime((Long)null).ambientLight(16.0F).height(384).minY(-64).logicalHeight(384).infiniburn(NamespaceID.from("minecraft:infiniburn_overworld")).build();
+        manager.addDimension(a);
 
         // 创建实例
-        Main.instance = instanceManager.createInstanceContainer();
+        Main.instance = instanceManager.createInstanceContainer(a);
         BlockBreakStage.blockBreakStage.put(instance, new HashMap<>());
 
         // 设置区块生成器
@@ -73,6 +75,7 @@ public class Main {
         MinecraftServer.getCommandManager().register(new CTeleport());
         MinecraftServer.getCommandManager().register(new CTest2(instance));
         MinecraftServer.getCommandManager().register(new CTime());
+        MinecraftServer.getCommandManager().register(new Test3());
 
         // 用户获取服务器列表时返回内容监听器
         globalEventHandler.addListener(ServerListPingEvent.class, event -> {
