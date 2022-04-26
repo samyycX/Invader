@@ -1,12 +1,14 @@
 package com.samyyc.invader.gun.bullet;
 
 import com.samyyc.invader.gun.GunsManager;
+import net.kyori.adventure.sound.Sound;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.block.Block;
+import net.minestom.server.network.packet.server.play.SoundEffectPacket;
 import net.minestom.server.timer.ExecutionType;
 import net.minestom.server.timer.TaskSchedule;
 
@@ -15,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class BulletManager {
 
-    private static Map<Bullet, Long> bullets = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<Bullet, Long> bullets = new ConcurrentHashMap<>();
     private Instance instance;
 
     public BulletManager(Instance instance) {
@@ -34,8 +36,6 @@ public class BulletManager {
                         bulletIt.remove();
                         continue;
                     }
-
-                    System.out.println(bullet.getEnded());
 
                     if (!bullet.getEnded() && entry.getValue() > 0) {
                         if (entry.getValue() % bullet.getInterval() == 0) {
